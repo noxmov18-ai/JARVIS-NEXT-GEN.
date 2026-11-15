@@ -1,0 +1,40 @@
+name: JARVIS APK Builder
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build JARVIS APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download source code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: '17'
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Prepare Gradle
+        run: chmod +x gradlew
+
+      - name: Build APK
+        run: ./gradlew --no-daemon assembleDebug
+
+      - name: Save APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: JARVIS-Android-APK
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 7
